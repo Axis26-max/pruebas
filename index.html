@@ -1,0 +1,778 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Cuestionario Academia 8 Islas</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700&display=swap">
+<style>
+  /* Diseño aprobado (PDF): cabecera azul marino con filete dorado, pasos numerados, formulario a dos columnas, pie con navegación. Un solo aspecto claro, como el impreso. */
+  :root{
+    --navy:#0d1b3e; --navy-2:#1b2b55; --gold:#ecb33b; --gold-ink:#7b5b12;
+    --ink:#1b2236; --muted:#69718a; --line:#cfd5e2; --soft:#f1f3f8; --paper:#ffffff;
+    --danger:#b42318; --ok:#1f7a4d; --bg:#e8ebf2;
+    --display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+    --body:Barlow,"Segoe UI",Arial,sans-serif;
+    color-scheme:light;
+  }
+  *{box-sizing:border-box}
+  [hidden]{display:none!important}
+  body{background:var(--bg);color:var(--ink);font:16px/1.45 var(--body);margin:0;
+    padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px}
+  .sheet{max-width:820px;margin:0 auto;background:var(--paper);border-radius:6px;overflow:hidden;box-shadow:0 1px 3px rgba(13,27,62,.12)}
+  header.top{background:var(--navy);color:#fff;border-bottom:6px solid var(--gold);display:flex;align-items:center;gap:20px;padding:22px 32px}
+  header.top img{width:76px;height:auto;flex:none}
+  header.top h1{font:700 clamp(24px,4vw,34px)/1.05 var(--display);margin:0;text-wrap:balance}
+  header.top p{margin:6px 0 0;color:#c6cee3}
+  .demo{background:#fff8e6;border-bottom:1px solid #f0dca8;padding:10px 32px;font-size:14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+  .demo button{font:600 13px var(--body);background:transparent;border:1.5px solid var(--navy);color:var(--navy);border-radius:6px;padding:5px 12px;cursor:pointer}
+  nav.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:18px 32px;border-bottom:1px solid var(--line)}
+  .step{display:flex;align-items:center;gap:10px;color:var(--muted);font-weight:500;min-width:0}
+  .step b{flex:none;width:32px;height:32px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font:600 14px var(--body);color:var(--muted);background:#fff}
+  .step.done b{background:var(--navy);border-color:var(--navy);color:#fff}
+  .step.on b{background:var(--gold);border-color:var(--navy);color:var(--navy)}
+  .step.on,.step.done{color:var(--ink)}
+  .step.on span{font-weight:600}
+  main{padding:8px 32px 8px}
+  .intro{color:var(--ink);margin:16px 0 4px;max-width:68ch}
+  h2{font:700 26px/1.1 var(--display);color:var(--navy);margin:28px 0 12px;text-wrap:balance}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px 20px}
+  .field{display:flex;flex-direction:column;gap:6px;min-width:0}
+  .field.full{grid-column:1/-1}
+  label.q,.q{font-weight:600}
+  .req{color:var(--danger)}
+  .hint{color:var(--muted);font-size:14px;margin-top:-2px}
+  input[type=text],input[type=email],input[type=date],input[type=number],select,textarea{
+    font:16px var(--body);color:var(--ink);background:#fff;border:1.5px solid var(--line);border-radius:7px;padding:10px 12px;width:100%;min-width:0}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 3px rgba(236,179,59,.35)}
+  input:disabled,select:disabled{background:var(--soft);color:#9aa1b4}
+  .opts{display:flex;flex-wrap:wrap;gap:8px 22px}
+  .opt{display:inline-flex;align-items:center;gap:8px;cursor:pointer}
+  .opt input{width:19px;height:19px;accent-color:var(--navy);margin:0}
+  .box{background:var(--soft);border-radius:8px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start}
+  .box input{width:19px;height:19px;accent-color:var(--navy);margin:3px 0 0;flex:none}
+  .box a{color:var(--navy)}
+  .note{color:var(--muted);font-size:14px;margin:4px 0 0}
+  .imc{font-size:14px;padding:8px 12px;border-radius:6px;background:var(--soft);margin-top:4px}
+  .imc.warn{background:#fff3e6;color:#8a4b0a}
+  .err-msg{color:var(--danger);font-size:14px;display:none}
+  .invalid .err-msg{display:block}
+  .invalid input[type=text],.invalid input[type=email],.invalid input[type=date],.invalid input[type=number],.invalid select{border-color:var(--danger)}
+  .tablewrap{overflow-x:auto}
+  table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+  th{font-weight:600;font-size:14px;text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+  td{padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:middle}
+  .avail th:not(:first-child),.avail td:not(:first-child){text-align:center}
+  .avail input{width:20px;height:20px;accent-color:var(--navy)}
+  .inst td:nth-child(2){white-space:nowrap}
+  .inst input[type=number]{width:72px;text-align:center}
+  .marks td{min-width:120px}
+  .marks td:first-child{font-weight:600;min-width:130px}
+  .aviso-marcas{background:#fff8e6;border-left:4px solid var(--gold);border-radius:6px;padding:10px 14px;margin-bottom:14px;font-size:15px}
+  .aviso-marcas p{margin:4px 0}
+  .aviso-marcas summary{cursor:pointer;font-weight:600;color:var(--navy);margin-top:6px}
+  .aviso-marcas ul{margin:4px 0 6px;padding-left:20px}
+  .aviso-marcas a{color:var(--navy);font-weight:600}
+  .marks .marca{display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+  .marks input.mk{width:3.1em;text-align:center;padding:9px 4px;font-variant-numeric:tabular-nums}
+  .marks input.mk.d1{width:2.5em}
+  .marks input.mk.d3{width:4em}
+  .marks .sep{font-weight:600;color:var(--navy)}
+  .marks .unidades{display:block;font-size:12px;margin-top:3px;white-space:nowrap}
+  .marks .fecha{display:inline-flex;gap:6px}
+  .marks .fecha select{width:auto;padding:9px 6px}
+  .marks tr.bad td{background:#fdf0ef}
+  @media (max-width:640px){
+    .marks thead{display:none}
+    .marks,.marks tbody,.marks tr,.marks td{display:block;width:100%}
+    .marks tr{border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:10px}
+    .marks td{border:0;padding:5px 0;min-width:0}
+    .marks td:first-child{font-size:17px;min-width:0}
+    .marks td[data-l]::before{content:attr(data-l);display:block;font-size:13px;color:var(--muted);margin-bottom:3px}
+    .marks tr.bad{border-color:var(--danger);background:#fdf0ef}
+    .marks tr.bad td:first-child{box-shadow:none}
+  }
+  .marks tr.bad td:first-child{box-shadow:inset 4px 0 0 var(--danger)}
+  footer.nav{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:12px;border-top:1px solid var(--line);margin:28px 32px 0;padding:18px 0}
+  footer.nav .mid{color:var(--muted);font-size:14px;text-align:center}
+  .btn{font:600 16px var(--body);border-radius:8px;padding:12px 26px;cursor:pointer;border:2px solid var(--navy)}
+  .btn.prev{background:#fff;color:var(--navy);justify-self:start}
+  .btn.next{background:var(--gold);border-color:var(--gold);color:var(--navy);justify-self:end}
+  .btn:focus-visible,.demo button:focus-visible{outline:3px solid var(--navy);outline-offset:2px}
+  .btn[disabled]{opacity:.6;cursor:wait}
+  .brand{color:var(--muted);font-size:13px;padding:0 32px 18px}
+  .done{padding:48px 32px 40px;text-align:left;max-width:60ch}
+  .done h2{font-size:32px;margin-top:0}
+  .done .tick{width:56px;height:56px;border-radius:50%;background:var(--navy);display:grid;place-items:center;margin-bottom:16px}
+  .done .tick svg{width:28px;height:28px}
+  /* Ficha inicial (vista de prueba) */
+  .ficha{padding:8px 32px 8px}
+  .ficha .lede{color:var(--muted);margin:14px 0 0}
+  .ficha h2{margin-top:26px}
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:6px 36px}
+  .cols h3{font:600 15px var(--body);color:var(--navy);border-bottom:1px solid var(--line);padding-bottom:4px;margin:14px 0 6px}
+  .kv{margin:4px 0;font-size:15px}
+  .kv span{color:var(--muted)}
+  .test td,.test th{white-space:nowrap}
+  .test td.r,.test th.r{text-align:right}
+  .test td.b{font-weight:600}
+  .pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 10px;font-size:13px;font-weight:600}
+  .pill::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor}
+  .pill.verde{background:#dff2e7;color:var(--ok)}
+  .pill.ambar{background:#fbeccb;color:var(--gold-ink)}
+  .pill.rojo{background:#f9dcda;color:var(--danger)}
+  .phases{display:flex;gap:4px;border-radius:8px;overflow:hidden;margin:10px 0 4px}
+  .phases div{padding:10px 12px;min-width:0}
+  .phases b{display:block;font-weight:600}
+  .phases small{font-size:12.5px}
+  .ph-base{background:#cdd5ea;color:var(--navy)}
+  .ph-esp{background:var(--navy);color:#fff}
+  .ph-esp small{color:#c6cee3}
+  .ph-afin{background:var(--gold);color:var(--navy)}
+  .testweek{background:var(--soft);border-radius:8px;padding:10px 14px;margin-top:10px;font-size:15px}
+  .avisos{border-left:4px solid var(--gold);background:#fff8e6;border-radius:4px;padding:10px 14px;margin-top:18px}
+  .avisos p{margin:4px 0;font-size:15px}
+  .again{margin:24px 0 8px}
+  .mapas{display:flex;flex-wrap:wrap;gap:8px}
+  .mapas .btn.alt{background:#fff;border:2px solid var(--navy);color:var(--navy);font-size:15px;padding:8px 14px;text-decoration:none}
+  @media (max-width:640px){
+    .ficha{padding-left:18px;padding-right:18px}
+    .cols{grid-template-columns:1fr}
+    .phases{flex-direction:column}
+    .phases div{flex:auto!important}
+    header.top,main,.demo{padding-left:18px;padding-right:18px}
+    header.top img{width:58px}
+    nav.steps{padding:14px 18px;gap:4px}
+    .step{flex-direction:column;gap:4px;text-align:center;font-size:12px}
+    .grid{grid-template-columns:1fr}
+    footer.nav{margin:24px 18px 0;grid-template-columns:auto 1fr auto}
+    footer.nav .mid{font-size:12px}
+    .btn{padding:11px 16px}
+    .brand{padding:0 18px 16px}
+  }
+  @media (prefers-reduced-motion:no-preference){section.page{animation:in .25s ease-out}@keyframes in{from{opacity:.4;transform:translateY(6px)}to{opacity:1;transform:none}}}
+</style>
+</head>
+<body>
+
+<div class="sheet">
+  <header class="top">
+    <img src="data:image/webp;base64,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" alt="Academia 8 Islas">
+    <div>
+      <h1>Cuestionario inicial de pruebas físicas</h1>
+      <p>Agentes del Servicio de Vigilancia Aduanera</p>
+    </div>
+  </header>
+
+  <div class="demo" id="demo" hidden>
+    <span><b>Vista de prueba.</b> Las respuestas no se envían a ningún sitio.</span>
+    <button type="button" id="fill">Rellenar con un ejemplo</button>
+  </div>
+
+  <form id="f" novalidate>
+  <nav class="steps" aria-label="Pasos">
+    <div class="step on" data-s="1"><b>1</b><span>Sobre ti</span></div>
+    <div class="step" data-s="2"><b>2</b><span>Natación</span></div>
+    <div class="step" data-s="3"><b>3</b><span>Tu semana</span></div>
+    <div class="step" data-s="4"><b>4</b><span>Tus marcas</span></div>
+  </nav>
+
+  <main>
+    <!-- PASO 1 -->
+    <section class="page" data-p="1">
+      <p class="intro">Con tus respuestas generamos tu plan de entrenamiento personalizado. Te llevará unos 10 minutos. <b>Antes de enviarlo necesitas haberte medido en las cuatro pruebas</b> (50 m lisos, 800 m, salto de longitud y 50 m libres): con esas marcas ajustamos tu plan. En el paso 4 te explicamos cómo medirte.</p>
+      <h2>Datos básicos</h2>
+      <div class="grid">
+        <div class="field" data-req><label class="q" for="nombre">Nombre y apellidos <span class="req">*</span></label><input type="text" id="nombre" autocomplete="name"><span class="err-msg">Escribe tu nombre y apellidos.</span></div>
+        <div class="field" data-req data-type="email"><label class="q" for="email">Correo electrónico <span class="req">*</span></label><input type="email" id="email" autocomplete="email"><span class="err-msg">Escribe un correo válido: ahí te llegará tu plan.</span></div>
+        <div class="field" data-req><label class="q" for="nacimiento">Fecha de nacimiento <span class="req">*</span></label><input type="date" id="nacimiento"><span class="err-msg">Indica tu fecha de nacimiento.</span></div>
+        <div class="field" data-req><label class="q" for="municipio">Municipio <span class="req">*</span></label><input type="text" id="municipio" placeholder="Te indicaremos dónde entrenar cerca de ti"><span class="err-msg">Indica tu municipio.</span></div>
+        <div class="field full" data-req data-radio="sexo"><span class="q">Sexo a efectos del baremo de la convocatoria <span class="req">*</span></span><span class="hint">Determina las marcas mínimas que se te exigen.</span>
+          <div class="opts"><label class="opt"><input type="radio" name="sexo" value="Hombre" id="sexo-h">Hombre</label><label class="opt"><input type="radio" name="sexo" value="Mujer" id="sexo-m">Mujer</label></div><span class="err-msg">Elige una opción.</span></div>
+      </div>
+
+      <h2>Medidas</h2>
+      <div class="grid">
+        <div class="field" data-req data-range="120,220"><label class="q" for="altura">Altura <span class="req">*</span></label><input type="number" id="altura" inputmode="numeric" placeholder="cm"><span class="err-msg">Escribe tu altura en centímetros, por ejemplo 178.</span></div>
+        <div class="field" data-req data-range="35,200"><label class="q" for="peso">Peso <span class="req">*</span></label><input type="number" id="peso" inputmode="decimal" placeholder="kg"><span class="err-msg">Escribe tu peso en kilos, por ejemplo 78.</span></div>
+        <div class="field full"><div class="imc" id="imc" hidden></div>
+          <p class="note">Solo se usan para calcular tu IMC en este momento y avisarte si estás fuera del rango que exigen las bases de la convocatoria. No se guardan.</p></div>
+      </div>
+
+      <h2>Experiencia</h2>
+      <div class="grid">
+        <div class="field full" data-req data-radio="actividad"><span class="q">¿Haces actividad física actualmente? <span class="req">*</span></span>
+          <div class="opts"><label class="opt"><input type="radio" name="actividad" value="No" id="act-0">No</label><label class="opt"><input type="radio" name="actividad" value="1-2 días por semana" id="act-1">1-2 días por semana</label><label class="opt"><input type="radio" name="actividad" value="3 o más días por semana" id="act-3">3 o más días por semana</label></div><span class="err-msg">Elige una opción.</span></div>
+        <div class="field full"><label class="q" for="deporte">¿Qué deporte o actividad?</label><input type="text" id="deporte" placeholder="Por ejemplo: fútbol, gimnasio, correr"></div>
+        <div class="field full" data-req data-radio="atletismo"><span class="q">¿Has practicado atletismo o deportes de carrera? <span class="req">*</span></span>
+          <div class="opts"><label class="opt"><input type="radio" name="atletismo" value="Nunca" id="atl-0">Nunca</label><label class="opt"><input type="radio" name="atletismo" value="En el pasado" id="atl-1">En el pasado</label><label class="opt"><input type="radio" name="atletismo" value="Actualmente" id="atl-2">Actualmente</label></div><span class="err-msg">Elige una opción.</span></div>
+      </div>
+    </section>
+
+    <!-- PASO 2 -->
+    <section class="page" data-p="2" hidden>
+      <h2>Natación</h2>
+      <div class="grid">
+        <div class="field full" data-req data-radio="crol"><span class="q">¿Sabes nadar crol? <span class="req">*</span></span>
+          <div class="opts"><label class="opt"><input type="radio" name="crol" value="No" id="crol-0">No</label><label class="opt"><input type="radio" name="crol" value="Con dificultad" id="crol-1">Con dificultad</label><label class="opt"><input type="radio" name="crol" value="Sí, con soltura" id="crol-2">Sí, con soltura</label></div><span class="err-msg">Elige una opción.</span></div>
+        <div class="field" data-req data-range="0,5000"><label class="q" for="metros">¿Cuántos metros puedes nadar seguidos? <span class="req">*</span></label><input type="number" id="metros" inputmode="numeric" placeholder="metros"><span class="err-msg">Escribe solo el número de metros, por ejemplo 400 (0 si no nadas).</span></div>
+        <div class="field full" data-req data-radio="cabeza"><span class="q">¿Te tiras de cabeza a la piscina? <span class="req">*</span></span>
+          <div class="opts"><label class="opt"><input type="radio" name="cabeza" value="No" id="cab-0">No</label><label class="opt"><input type="radio" name="cabeza" value="Con miedo o con mala técnica" id="cab-1">Con miedo o con mala técnica</label><label class="opt"><input type="radio" name="cabeza" value="Sí, sin problema" id="cab-2">Sí, sin problema</label></div><span class="err-msg">Elige una opción.</span></div>
+      </div>
+    </section>
+
+    <!-- PASO 3 -->
+    <section class="page" data-p="3" hidden>
+      <h2>Disponibilidad</h2>
+      <div class="field" data-req data-checks="franja"><span class="q">Marca los días y franjas en los que puedes entrenar <span class="req">*</span></span>
+        <div class="tablewrap"><table class="avail"><thead><tr><th></th><th>Mañana</th><th>Mediodía</th><th>Tarde</th><th>Noche</th></tr></thead><tbody id="availBody"></tbody></table></div>
+        <span class="err-msg">Marca al menos una franja.</span></div>
+      <div class="field" data-req data-radio="tiempo" style="margin-top:16px"><span class="q">¿Cuánto tiempo puedes dedicar a cada sesión? <span class="req">*</span></span>
+        <div class="opts"><label class="opt"><input type="radio" name="tiempo" value="30" id="t30">30 min</label><label class="opt"><input type="radio" name="tiempo" value="45" id="t45">45 min</label><label class="opt"><input type="radio" name="tiempo" value="60" id="t60">60 min</label><label class="opt"><input type="radio" name="tiempo" value="90" id="t90">90 min</label></div><span class="err-msg">Elige una opción.</span></div>
+
+      <h2>Instalaciones y material</h2>
+      <div class="field" data-req data-inst><span class="q">¿A qué instalaciones tienes acceso? <span class="req">*</span></span>
+        <div class="tablewrap"><table class="inst"><tbody id="instBody"></tbody></table></div>
+        <span class="err-msg">Responde Sí o No en cada instalación y, si es Sí, cuántos días por semana (1 a 7).</span></div>
+      <div class="field" style="margin-top:16px"><span class="q">¿De cuántos metros es la piscina donde entrenas?</span>
+        <div class="opts"><label class="opt"><input type="radio" name="piscinaM" value="25" id="p25">25 m</label><label class="opt"><input type="radio" name="piscinaM" value="50" id="p50">50 m</label></div></div>
+      <div class="field" style="margin-top:16px"><span class="q">¿Qué material tienes?</span>
+        <div class="opts"><label class="opt"><input type="checkbox" name="material" value="Reloj GPS o app de carrera" id="m1">Reloj GPS o app de carrera</label><label class="opt"><input type="checkbox" name="material" value="Cronómetro" id="m2">Cronómetro</label><label class="opt"><input type="checkbox" name="material" value="Alguien que pueda cronometrarte" id="m3">Alguien que pueda cronometrarte</label></div></div>
+    </section>
+
+    <!-- PASO 4 -->
+    <section class="page" data-p="4" hidden>
+      <h2>Tus marcas de referencia</h2>
+      <div class="aviso-marcas">
+        <p><b>Necesitamos una marca reciente de las cuatro pruebas.</b> Aunque alguna no la hayas hecho nunca, mídete antes de enviar el cuestionario: la preparación de cada prueba necesita una marca inicial como referencia para ajustar tus ritmos y tus objetivos. Sin las cuatro marcas no podemos preparar tu plan.</p>
+        <details>
+          <summary>Cómo medirte (2 días)</summary>
+          <p><b>Día A, en pista.</b> Calienta 15 minutos (trote suave, skipping y 3 progresivos).</p>
+          <ul>
+            <li><b>50 m lisos:</b> 2 intentos con salida de pie y 5 minutos de descanso. Que te cronometre otra persona y apunta el mejor. <a href="https://youtu.be/Iqq7beboJ_Y" target="_blank" rel="noopener">Ver vídeo</a></li>
+            <li><b>Salto de longitud:</b> 2 intentos. Mide con cinta métrica desde la línea de batida hasta la huella más cercana. <a href="https://youtu.be/O-DcCW38xKw" target="_blank" rel="noopener">Ver vídeo</a></li>
+            <li><b>800 m:</b> descansa 15 minutos y corre 1 vez a tope. Apunta el tiempo.</li>
+          </ul>
+          <p><b>Día B, en piscina.</b> Calienta 300 m suaves y haz <b>50 m libres</b> con zambullida, un solo intento, cronometrado por otra persona. <a href="https://youtu.be/LYT6iwyed_c" target="_blank" rel="noopener">Ver vídeo</a></p>
+        </details>
+      </div>
+      <div class="field" data-marks>
+        <div class="tablewrap"><table class="marks"><thead><tr><th>Prueba</th><th>Tu marca</th><th>Cómo se midió</th><th>Cuándo te mediste</th></tr></thead><tbody id="marksBody"></tbody></table></div>
+        <span class="err-msg" id="marksErr">Revisa las marcas: cada prueba necesita marca, cómo se midió y fecha.</span></div>
+      <p class="note">Cómo se midió: en las carreras y la natación, cronometrada por otra persona o con reloj o app; en el salto, con cinta métrica. La marca debe ser de los últimos 4 meses: si es más antigua, vuelve a medirte. Si tiene más de un mes, tu plan empezará con una semana de test para actualizarla.</p>
+
+      <h2>Tu motivación</h2>
+      <div class="field"><span class="q">¿Qué prueba te preocupa más?</span>
+        <div class="opts"><label class="opt"><input type="radio" name="preocupa" value="50 m lisos" id="pr1">50 m lisos</label><label class="opt"><input type="radio" name="preocupa" value="800 m" id="pr2">800 m</label><label class="opt"><input type="radio" name="preocupa" value="Salto de longitud" id="pr3">Salto de longitud</label><label class="opt"><input type="radio" name="preocupa" value="Natación" id="pr4">Natación</label></div></div>
+      <div class="field" style="margin-top:16px"><label class="q" for="comentario">¿Algo más que debamos saber?</label><input type="text" id="comentario" placeholder="Comentario libre"></div>
+
+      <h2>Autorizaciones</h2>
+      <p class="note" style="margin-top:-6px">Para terminar, revisa y acepta.</p>
+      <div class="field" data-req data-check="declaracion">
+        <label class="box"><input type="checkbox" id="declaracion"><span>Declaro que, según mi conocimiento, no padezco ninguna enfermedad, lesión o condición que me impida realizar actividad física de intensidad alta. Me comprometo a someterme a un reconocimiento médico antes de iniciar el plan, y a interrumpir el entrenamiento y consultar a un médico si aparece dolor en el pecho, mareos, falta de aire anormal o cualquier síntoma preocupante. <span class="req">*</span></span></label>
+        <span class="err-msg">Para generar tu plan tienes que aceptar la declaración responsable.</span></div>
+
+      <label class="box"><input type="checkbox" id="consentimiento"><span>Consiento expresamente que Academia 8 Islas trate la información sobre lesiones o molestias que indique a continuación, con la única finalidad de adaptar mi plan de entrenamiento. Se conservará mientras esté activo en el programa y puedo retirar mi consentimiento en cualquier momento desde mi perfil. Tienes la información sobre protección de datos más abajo. <span class="hint">(opcional)</span></span></label>
+      <p class="note">Las preguntas siguientes solo aparecen si marcas esta casilla. Si no la marcas, tu plan se generará completo sin tener en cuenta ninguna lesión: si tienes alguna, no empieces sin consultarlo.</p>
+      <div id="lesiones" hidden>
+        <div class="grid" style="margin-top:14px">
+          <div class="field full" data-req data-checks="lesion"><span class="q">¿Tienes actualmente alguna lesión o molestia que te impida o limite realizar alguna de estas pruebas? <span class="req">*</span></span>
+            <div class="opts"><label class="opt"><input type="checkbox" name="lesion" value="50 m lisos" id="les-1">50 m lisos</label><label class="opt"><input type="checkbox" name="lesion" value="800 m" id="les-2">800 m</label><label class="opt"><input type="checkbox" name="lesion" value="Salto de longitud" id="les-3">Salto de longitud</label><label class="opt"><input type="checkbox" name="lesion" value="Natación" id="les-4">Natación</label><label class="opt"><input type="checkbox" name="lesion" value="Ninguna" id="les-0">Ninguna</label></div><span class="err-msg">Marca las pruebas afectadas o «Ninguna».</span></div>
+          <div class="field full"><span class="q">Si es así, ¿cuándo prevés estar recuperado/a?</span>
+            <div class="opts"><label class="opt"><input type="radio" name="recuperacion" value="Menos de 2 semanas" id="rec-1">Menos de 2 semanas</label><label class="opt"><input type="radio" name="recuperacion" value="2-4 semanas" id="rec-2">2-4 semanas</label><label class="opt"><input type="radio" name="recuperacion" value="Más de un mes" id="rec-3">Más de un mes</label><label class="opt"><input type="radio" name="recuperacion" value="No lo sé" id="rec-4">No lo sé</label></div></div>
+        </div>
+      </div>
+
+      <span id="proteccion"></span>
+      <div class="field" data-req data-check="leido" style="margin-bottom:10px"><label class="box"><input type="checkbox" id="leido"><span>He leído la <a href="#proteccion">información sobre protección de datos</a> de Academia 8 Islas. <span class="req">*</span></span></label><span class="err-msg">Marca la casilla para continuar.</span></div>
+      <div class="field" data-req data-check="veraces"><label class="box"><input type="checkbox" id="veraces"><span>Declaro que los datos que he facilitado son veraces. <span class="req">*</span></span></label><span class="err-msg">Marca la casilla para continuar.</span></div>
+    </section>
+  </main>
+
+  <footer class="nav" id="navbar">
+    <span><button type="button" class="btn prev" id="prev" hidden>Anterior</button></span>
+    <span class="mid" id="mid">Paso 1 de 4. <span class="req">*</span> Obligatorio</span>
+    <button type="submit" class="btn next" id="next">Siguiente</button>
+  </footer>
+  </form>
+
+  <section class="done" id="done" hidden>
+    <div class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="#ecb33b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div>
+    <h2>¡Cuestionario enviado!</h2>
+    <p id="doneTxt">Te hemos enviado un correo de confirmación. En los próximos dos días recibirás tu ficha inicial y tu primera semana de entrenamiento. Si no ves nuestros correos, revisa la carpeta de spam o promociones.</p>
+  </section>
+  <section class="ficha" id="ficha" hidden></section>
+  <div class="brand">Academia 8 Islas · <span id="ver">v11</span></div>
+</div>
+
+<!--CALCULO-INICIO: copia de Calculo.js, no editar aqui-->
+<script>
+/**
+ * Academia 8 Islas · Cálculo de la ficha inicial
+ * Funciones puras: sirven igual en la página (vista de prueba) y en Apps Script (Calculo.gs).
+ *
+ * Reglas acordadas:
+ *  - Mínimas BOE 31/12/2025. Objetivo final = mínima mejorada un 10 %.
+ *  - Semáforo: verde (≥ objetivo); ámbar (entre mínima y objetivo, o hasta 5 % por debajo de la mínima);
+ *    rojo (resto o nunca realizada).
+ *  - 50 m lisos cronometrado a mano: +0,2 s.
+ *  - Sin marca, marca estimada o de hace más de un mes → semana de test inicial.
+ *  - Fases: base → específica → afinamiento hasta la fecha objetivo común de la academia.
+ */
+var Calculo = (function () {
+  var CONFIG = {
+    fechaObjetivo: '2027-03-15', // fecha objetivo común fijada por la academia
+    imcMin: 18.5, imcMax: 29.9,  // rango de IMC de las bases de la convocatoria · CONFIRMAR y actualizar si cambian
+    margenCerca: 0.05,
+    mejoraObjetivo: 0.10,
+    ritmoPrimerMes: 1.2,         // el primer mes se avanza algo más rápido que la media
+  };
+  var MINIMAS = {
+    Hombre: { l50: 8.00, m800: 180, salto: 3.42, nado: 50.0 },
+    Mujer:  { l50: 9.60, m800: 233, salto: 2.85, nado: 60.0 },
+  };
+  var PRUEBAS = [
+    { k: 'l50',   n: '50 m lisos',        tiempo: true,  paso: 0.05 },
+    { k: 'm800',  n: '800 m',             tiempo: true,  paso: 1 },
+    { k: 'salto', n: 'Salto de longitud', tiempo: false, paso: 0.01 },
+    { k: 'nado',  n: '50 m libres',       tiempo: true,  paso: 0.1 },
+  ];
+  var DIAS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+  var MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+  var DIA_MS = 86400000;
+
+  function num(s) {
+    s = String(s == null ? '' : s).trim().replace(',', '.');
+    if (!s) return null;
+    if (s.indexOf(':') >= 0) { var p = s.split(':'); return (+p[0]) * 60 + parseFloat(p[1]); }
+    var v = parseFloat(s); return isNaN(v) ? null : v;
+  }
+  function redondea(v, paso) { return Math.round(v / paso) * paso; }
+  function pad(n, l) { n = String(n); while (n.length < l) n = '0' + n; return n; }
+
+  function formato(k, v) {
+    if (v == null || isNaN(v)) return '—';
+    if (k === 'salto') return v.toFixed(2).replace('.', ',') + ' m';
+    if (k === 'l50') { var c = Math.round(v * 100); return Math.floor(c / 100) + '"' + pad(c % 100, 2); }
+    if (k === 'm800') { var s = Math.round(v); return Math.floor(s / 60) + "'" + pad(s % 60, 2) + '"'; }
+    var t = Math.round(v * 10); // nado
+    if (t < 600) return Math.floor(t / 10) + '"' + (t % 10);
+    return Math.floor(t / 600) + "'" + pad(Math.floor((t % 600) / 10), 2) + '"' + (t % 10);
+  }
+
+  function lista(xs) { return xs.length < 2 ? xs.join('') : xs.slice(0, -1).join(', ') + ' y ' + xs[xs.length - 1]; }
+  function lunesSiguiente(d) { var x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); var w = (x.getDay() + 6) % 7; return new Date(x.getTime() + (7 - w) * DIA_MS); }
+  function suma(d, dias) { return new Date(d.getTime() + dias * DIA_MS); }
+  function fechaLarga(d) { return d.getDate() + ' de ' + MESES[d.getMonth()] + ' de ' + d.getFullYear(); }
+  function rangoFechas(a, b) {
+    if (a.getMonth() === b.getMonth()) return 'del ' + a.getDate() + ' al ' + fechaLarga(b);
+    return 'del ' + a.getDate() + ' de ' + MESES[a.getMonth()] + ' al ' + fechaLarga(b);
+  }
+  function rangoMeses(a, b) {
+    return a.getMonth() === b.getMonth() && a.getFullYear() === b.getFullYear() ? MESES[a.getMonth()] : MESES[a.getMonth()] + ' a ' + MESES[b.getMonth()];
+  }
+  function mesesDesde(mmaaaa, hoy) {
+    var m = /^(\d{1,2})\/(\d{4})$/.exec(String(mmaaaa || '').trim()); if (!m) return 99;
+    return (hoy.getFullYear() - +m[2]) * 12 + (hoy.getMonth() + 1 - +m[1]);
+  }
+
+  /** Evalúa una prueba: marca válida, frente a la mínima y semáforo. */
+  function evaluar(p, entrada, minimas) {
+    var min = minimas[p.k];
+    var obj = redondea(p.tiempo ? min * (1 - CONFIG.mejoraObjetivo) : min * (1 + CONFIG.mejoraObjetivo), p.k === 'm800' ? 1 : 0.01);
+    var r = { k: p.k, n: p.n, tiempo: p.tiempo, minima: min, objetivo: obj, entrada: entrada };
+    var v = entrada && !entrada.nunca ? num(entrada.marca) : null;
+    var manual = p.k === 'l50' && entrada && /Cronometrada|reloj/i.test(entrada.medicion || '');
+    r.medicion = !entrada || entrada.nunca ? 'Nunca realizada' : entrada.medicion === 'Estimada' ? 'Estimada' : manual ? 'Manual (+0,2 s)'
+      : p.k === 'salto' ? 'Cinta métrica'
+      : /reloj/i.test(entrada.medicion) ? 'Reloj o app' : 'Otra persona';
+    if (v == null) { r.valida = null; r.color = 'rojo'; r.estado = 'Sin marca'; r.frente = '—'; r.deficit = 1; return r; }
+    if (manual) v = Math.round((v + 0.2) * 100) / 100;
+    r.valida = v;
+    var mejor = function (x) { return p.tiempo ? v <= x + 1e-9 : v >= x - 1e-9; };
+    r.deficit = p.tiempo ? (v - min) / min : (min - v) / min;
+    if (p.k === 'salto') {
+      var cm = Math.round((v - min) * 100);
+      r.frente = cm === 0 ? 'Justo en la mínima' : Math.abs(cm) + ' cm ' + (cm < 0 ? 'por debajo' : 'por encima');
+    } else {
+      var pct = Math.abs(r.deficit * 100).toFixed(1).replace('.', ',');
+      r.frente = Math.abs(r.deficit) < 0.0005 ? 'Justo en la mínima' : pct + ' % ' + (r.deficit > 0 ? 'más lento' : 'más rápido');
+    }
+    if (mejor(obj)) { r.color = 'verde'; r.estado = 'Objetivo alcanzado'; }
+    else if (mejor(min)) { r.color = 'ambar'; r.estado = 'Aprobado, sin margen'; }
+    else if (r.deficit <= CONFIG.margenCerca + 1e-9) { r.color = 'ambar'; r.estado = 'Cerca'; }
+    else { r.color = 'rojo'; r.estado = 'Lejos'; }
+    return r;
+  }
+
+  function disponibilidad(franjas) {
+    var porDia = {};
+    (franjas || []).forEach(function (f) { var x = f.split('|'); (porDia[x[0]] = porDia[x[0]] || []).push(x[1]); });
+    var dias = DIAS.filter(function (d) { return porDia[d]; });
+    var txtFranja = { 'Mañana': 'por la mañana', 'Mediodía': 'a mediodía', 'Tarde': 'por la tarde', 'Noche': 'por la noche' };
+    var grupos = [], idx = {};
+    dias.forEach(function (d) {
+      var key = porDia[d].join('+');
+      if (!(key in idx)) { idx[key] = grupos.length; grupos.push({ key: key, dias: [] }); }
+      grupos[idx[key]].dias.push(d.toLowerCase());
+    });
+    var texto = grupos.map(function (g) { return lista(g.dias) + ' ' + lista(g.key.split('+').map(function (f) { return txtFranja[f]; })); }).join('; ');
+    return { dias: dias, texto: texto };
+  }
+
+  function elegirDias(dias) {
+    if (dias.length <= 5) return dias.slice();
+    var out = []; for (var i = 0; i < 5; i++) out.push(dias[Math.round(i * (dias.length - 1) / 4)]);
+    return out;
+  }
+
+  function fases(semanas) {
+    var base = semanas >= 20 ? 4 : semanas >= 12 ? 3 : semanas >= 6 ? 2 : 0;
+    var afin = semanas >= 16 ? 4 : semanas >= 10 ? 3 : Math.min(2, semanas);
+    var esp = Math.max(0, semanas - base - afin);
+    return [
+      { n: 'Base', ini: 1, fin: base },
+      { n: 'Específica', ini: base + 1, fin: base + esp },
+      { n: 'Afinamiento', ini: base + esp + 1, fin: semanas },
+    ].filter(function (f) { return f.fin >= f.ini; });
+  }
+
+  /** Calcula la ficha inicial completa a partir de las respuestas del cuestionario. */
+  // semanaDesde: en los planes siguientes, semana del plan desde la que se calculan los objetivos (con las marcas nuevas).
+  function ficha(d, hoy, semanaDesde) {
+    hoy = hoy || new Date();
+    var minimas = MINIMAS[d.sexo] || MINIMAS.Hombre;
+    var marcas = {}; (d.marcas || []).forEach(function (m) { marcas[m.prueba] = m; });
+    var pruebas = PRUEBAS.map(function (p) { return evaluar(p, marcas[p.n], minimas); });
+
+    var needTest = pruebas.some(function (r) {
+      var e = r.entrada; return !e || e.nunca || e.medicion === 'Estimada' || mesesDesde(e.fecha, hoy) > 1;
+    });
+    var inicio = lunesSiguiente(hoy);
+    var test = needTest ? { ini: inicio, fin: suma(inicio, 6) } : null;
+    var planIni = needTest ? suma(inicio, 7) : inicio;
+    var objetivo = new Date(CONFIG.fechaObjetivo + 'T00:00:00');
+    var semanas = Math.max(0, Math.floor((objetivo - planIni) / (7 * DIA_MS)));
+    var fs = fases(semanas).map(function (f) {
+      var a = suma(planIni, (f.ini - 1) * 7), b = suma(planIni, f.fin * 7 - 1);
+      f.meses = rangoMeses(a, b); f.semanas = f.fin - f.ini + 1; return f;
+    });
+
+    var orden = pruebas.slice().sort(function (a, b) {
+      if (b.deficit !== a.deficit) return b.deficit - a.deficit;
+      return (b.n.indexOf(d.preocupa) >= 0 ? 1 : 0) - (a.n.indexOf(d.preocupa) >= 0 ? 1 : 0);
+    });
+
+    var disp = disponibilidad(d.franjas);
+    var diasPlan = elegirDias(disp.dias);
+    var meses = Math.max(1, (semanas - (semanaDesde ? semanaDesde - 1 : 0)) / 4.345);
+    var ritmo = semanaDesde ? 1 : CONFIG.ritmoPrimerMes;
+    var objetivosMes = pruebas.map(function (r) {
+      var p = PRUEBAS.filter(function (x) { return x.k === r.k; })[0];
+      if (r.valida == null) return { k: r.k, n: r.n, v: null, texto: 'Se fija tras el test inicial' };
+      if (r.color === 'verde') return { k: r.k, n: r.n, v: r.objetivo, texto: (r.tiempo ? '≤ ' : '≥ ') + formato(r.k, r.objetivo) + ' (mantener)' };
+      var paso = (r.objetivo - r.valida) / meses * ritmo;
+      var meta = redondea(r.valida + paso, p.paso);
+      if (r.tiempo ? meta < r.objetivo : meta > r.objetivo) meta = r.objetivo;
+      return { k: r.k, n: r.n, v: meta, texto: formato(r.k, meta) };
+    });
+
+    var avisos = [];
+    if (d.imc != null && (d.imc < CONFIG.imcMin || d.imc > CONFIG.imcMax)) avisos.push('Tu IMC está fuera del rango que exigen las bases de la convocatoria. Revísalo con un médico antes de presentarte.');
+    if (d.crol === 'No' || d.metrosSeguidos < 50) avisos.push('Todavía no nadas 50 m seguidos a crol: el plan empieza con técnica de natación desde la primera semana.');
+    if (d.deCabeza === 'No' || /miedo/.test(d.deCabeza || '')) avisos.push('Necesitas trabajar la salida de cabeza: la prueba exige zambullida.');
+    if ((d.lesiones || []).filter(function (x) { return x !== 'Ninguna'; }).length) avisos.push('Has indicado molestias en: ' + lista(d.lesiones.filter(function (x) { return x !== 'Ninguna'; })) + '. Consulta con un profesional sanitario antes de entrenar esas pruebas.');
+    if (diasPlan.length < 3) avisos.push('Con menos de 3 días por semana el progreso será más lento. Si puedes, añade algún día más.');
+    if (!(d.instalaciones && d.instalaciones.piscina)) avisos.push('No tienes acceso a piscina: necesitarás al menos una sesión semanal de natación.');
+
+    return {
+      nombre: d.nombre, sexo: d.sexo, hoy: hoy,
+      edad: d.nacimiento ? Math.floor((hoy - new Date(d.nacimiento + 'T00:00:00')) / (365.25 * DIA_MS)) : null,
+      imc: d.imc, imcDentro: d.imc != null && d.imc >= CONFIG.imcMin && d.imc <= CONFIG.imcMax,
+      pruebas: pruebas, test: test, testTexto: test ? rangoFechas(test.ini, test.fin) : '',
+      semanas: semanas, fases: fs, fechaObjetivo: fechaLarga(objetivo), planIni: planIni,
+      prioridades: orden.map(function (r) { return r.n; }),
+      disponibilidad: disp.texto, diasPlan: diasPlan, minutos: d.minutosSesion,
+      objetivosMes: objetivosMes, avisos: avisos,
+      formato: formato,
+    };
+  }
+
+  return { ficha: ficha, formato: formato, lista: lista, CONFIG: CONFIG, MINIMAS: MINIMAS };
+})();
+
+if (typeof module !== 'undefined') module.exports = Calculo;
+
+</script>
+<!--CALCULO-FIN-->
+<script>
+(function(){
+  // Rango de IMC de las bases: se define una sola vez en Calculo.CONFIG.
+  var IMC_MIN = Calculo.CONFIG.imcMin, IMC_MAX = Calculo.CONFIG.imcMax;
+  var DIAS = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
+  var FRANJAS = ['Mañana','Mediodía','Tarde','Noche'];
+  var INST = [['pista','Pista de atletismo'],['foso','Foso de arena para salto'],['piscina','Piscina'],['gimnasio','Gimnasio']];
+  // Cada marca se escribe en casillas numéricas acotadas (solo números, con mínimo y máximo).
+  var MARCAS = [
+    {id:'m50', n:'50 m lisos', ej:'8 , 20', unidades:'segundos , centésimas',
+      partes:[{k:'s',min:5,max:20,ph:'8',dig:2,tras:','},{k:'c',min:0,max:99,ph:'20',dig:2,tras:''}]},
+    {id:'m800', n:'800 m', ej:'3 : 28', unidades:'minutos : segundos',
+      partes:[{k:'min',min:1,max:9,ph:'3',dig:1,tras:':'},{k:'s',min:0,max:59,ph:'28',dig:2,tras:''}]},
+    {id:'msalto', n:'Salto de longitud', ej:'315', unidades:'centímetros', med:['Con cinta métrica'],
+      partes:[{k:'cm',min:100,max:700,ph:'315',dig:3,tras:''}]},
+    {id:'mnado', n:'50 m libres', ej:'0 : 52 , 0', unidades:'minutos : segundos , décimas',
+      partes:[{k:'min',min:0,max:3,ph:'0',dig:1,tras:':',opcional:true},{k:'s',min:0,max:59,ph:'52',dig:2,tras:','},{k:'d',min:0,max:9,ph:'0',dig:1,tras:'',opcional:true}]}
+  ];
+  var MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  function dos(x){ x = String(+x); return x.length < 2 ? '0' + x : x; }
+  // Devuelve la marca como texto uniforme (8,20 · 3:28 · 3,15 · 52,0 · 1:05,0); '' si está vacía; null si algún número está fuera de rango.
+  function leerMarca(m){
+    var v = m.partes.map(function(p){ return $('#'+m.id+'-'+p.k).value.trim(); });
+    if (v.every(function(x){ return x === ''; })) return '';
+    var ok = m.partes.every(function(p, i){ return (v[i] === '' && p.opcional) || (/^\d+$/.test(v[i]) && +v[i] >= p.min && +v[i] <= p.max); });
+    if (!ok) return null;
+    if (m.id === 'msalto') return (+v[0] / 100).toFixed(2).replace('.', ',');
+    if (m.id === 'm800') return (+v[0]) + ':' + dos(v[1]);
+    if (m.id === 'mnado') { var min = +(v[0] || 0); if (!min && +v[1] < 20) return null; return (min ? min + ':' + dos(v[1]) : String(+v[1])) + ',' + (v[2] || '0'); }
+    return (+v[0]) + ',' + dos(v[1]);
+  }
+  var $ = function(s,c){return (c||document).querySelector(s)};
+  var $$ = function(s,c){return Array.prototype.slice.call((c||document).querySelectorAll(s))};
+  // En Apps Script la página se sirve desde *.googleusercontent.com; google.script puede tardar un instante en estar listo.
+  // Google la muestra dentro de marcos anidados (a veces sin dirección propia): se mira también quién la contiene.
+  var contenedores = [location.href, document.referrer || ''];
+  try { if (location.ancestorOrigins) for (var i = 0; i < location.ancestorOrigins.length; i++) contenedores.push(location.ancestorOrigins[i]); } catch (e) {}
+  // Modo prueba solo en la vista de Claude o abriendo el archivo en local; en cualquier otro sitio (Apps Script) es real.
+  var modoPrueba = /^(file|data):$/.test(location.protocol) || /claude/i.test(location.hostname + ' ' + contenedores.join(' '));
+  var enAppsScript = !modoPrueba;
+  if (modoPrueba) $('#demo').hidden = false;
+  function cuandoGoogleListo(fn, intentos){
+    if (window.google && google.script && google.script.run) return fn();
+    if ((intentos || 0) > 50) return fn(new Error('No se ha podido conectar. Recarga la página e inténtalo de nuevo.'));
+    setTimeout(function(){ cuandoGoogleListo(fn, (intentos || 0) + 1); }, 100);
+  }
+
+  // Tablas generadas
+  $('#availBody').innerHTML = DIAS.map(function(d,i){
+    return '<tr><td>'+d+'</td>'+FRANJAS.map(function(fr,j){
+      return '<td><input type="checkbox" name="franja" id="av-'+i+'-'+j+'" value="'+d+'|'+fr+'" aria-label="'+d+', '+fr+'"></td>'}).join('')+'</tr>'}).join('');
+  $('#instBody').innerHTML = INST.map(function(x){
+    return '<tr><td>'+x[1]+'</td><td><label class="opt"><input type="radio" name="i-'+x[0]+'" value="si" id="i-'+x[0]+'-si">Sí</label> &nbsp; <label class="opt"><input type="radio" name="i-'+x[0]+'" value="no" id="i-'+x[0]+'-no">No</label></td>'+
+      '<td><input type="number" min="1" max="7" id="d-'+x[0]+'" disabled aria-label="Días por semana: '+x[1]+'"> <span class="hint">días/semana</span></td></tr>'}).join('');
+  var anioActual = new Date().getFullYear();
+  // Solo se admiten marcas de los últimos 4 meses: el desplegable ofrece solo esos.
+  var hoyM = new Date(), mesesValidos = [0, 1, 2, 3].map(function(k){ return new Date(hoyM.getFullYear(), hoyM.getMonth() - k, 1); });
+  var opcFecha = mesesValidos.map(function(x){ var v = dos(x.getMonth() + 1) + '/' + x.getFullYear(); return '<option value="'+v+'">'+MESES[x.getMonth()]+' '+x.getFullYear()+'</option>'; }).join('');
+  $('#marksBody').innerHTML = MARCAS.map(function(m){
+    return '<tr data-m="'+m.id+'"><td>'+m.n+'</td>'+
+      '<td data-l="Tu marca"><span class="marca">' + m.partes.map(function(p){
+          return '<input type="text" class="mk d'+p.dig+'" inputmode="numeric" maxlength="'+p.dig+'" id="'+m.id+'-'+p.k+'" placeholder="'+p.ph+'" aria-label="'+m.n+' ('+m.unidades+')">' + (p.tras ? '<b class="sep">'+p.tras+'</b>' : '');
+        }).join('') + '</span><span class="hint unidades">'+m.unidades+'</span></td>'+
+      '<td data-l="Cómo se midió"><select id="'+m.id+'-med" aria-label="Cómo se midió '+m.n+'"><option value="">Elige una opción</option>'+(m.med || ['Cronometrada por otra persona','Con reloj o app']).map(function(o){ return '<option>'+o+'</option>'; }).join('')+'</select></td>'+
+      '<td data-l="Cuándo te mediste"><select id="'+m.id+'-fecha" aria-label="Cuándo te mediste '+m.n+'"><option value="">Elige el mes</option>'+opcFecha+'</select></td></tr>'}).join('');
+  // Casillas de marca: solo números, y al llenarse pasa sola a la siguiente.
+  $$('input.mk').forEach(function(el){ el.addEventListener('input', function(){
+    var limpio = this.value.replace(/\D/g, '').slice(0, +this.maxLength);
+    if (limpio !== this.value) this.value = limpio;
+    if (limpio.length === +this.maxLength) { var sig = $$('input.mk', this.closest('tr')); var i = sig.indexOf(this); if (sig[i+1]) sig[i+1].focus(); }
+  });});
+
+  // Interacciones
+  $('#consentimiento').addEventListener('change', function(){ $('#lesiones').hidden = !this.checked; });
+  $$('input[name=lesion]').forEach(function(c){ c.addEventListener('change', function(){
+    if (this.value === 'Ninguna' && this.checked) $$('input[name=lesion]').forEach(function(o){ if(o.value!=='Ninguna') o.checked=false; });
+    else if (this.checked) $('#les-0').checked = false;
+  });});
+  INST.forEach(function(x){ $$('input[name=i-'+x[0]+']').forEach(function(r){ r.addEventListener('change', function(){
+    var d = $('#d-'+x[0]); d.disabled = this.value !== 'si'; if (d.disabled) d.value = ''; else d.focus();
+  });});});
+  function imc(){
+    var a = parseFloat($('#altura').value), p = parseFloat(String($('#peso').value).replace(',','.')), box = $('#imc');
+    if (!(a>=120 && a<=220 && p>=35 && p<=200)) { box.hidden = true; return null; }
+    var v = p / Math.pow(a/100, 2), dentro = v>=IMC_MIN && v<=IMC_MAX;
+    box.hidden = false; box.className = 'imc' + (dentro ? '' : ' warn');
+    box.textContent = 'Tu IMC: ' + v.toFixed(1).replace('.', ',') + (dentro ? '. Dentro del rango que exigen las bases.' : '. Fuera del rango que exigen las bases: revísalo antes de presentarte y consúltalo con un médico.');
+    return Math.round(v*10)/10;
+  }
+  $('#altura').addEventListener('input', imc); $('#peso').addEventListener('input', imc);
+
+  // Validación
+  function val(page){
+    var ok = true;
+    $$('[data-req]', page).forEach(function(f){
+      if (f.offsetParent === null && !f.closest('section[hidden]') && f.closest('#lesiones') && $('#lesiones').hidden) return;
+      if (f.closest('#lesiones') && $('#lesiones').hidden) { f.classList.remove('invalid'); return; }
+      var good = true, inp = $('input,select', f);
+      if (f.dataset.radio) good = !!$('input[name='+f.dataset.radio+']:checked', f);
+      else if (f.dataset.checks) good = $$('input[name='+f.dataset.checks+']:checked', f).length > 0;
+      else if (f.dataset.check) good = $('#'+f.dataset.check).checked;
+      else if (f.hasAttribute('data-inst')) good = INST.every(function(x){ var r=$('input[name=i-'+x[0]+']:checked'); if(!r) return false; if(r.value==='no') return true; var d=+$('#d-'+x[0]).value; return d>=1&&d<=7; });
+      else if (f.dataset.range) { var r = f.dataset.range.split(','), v = parseFloat(String(inp.value).replace(',','.')); good = inp.value !== '' && v>=+r[0] && v<=+r[1]; }
+      else if (f.dataset.type === 'email') good = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(inp.value.trim());
+      else good = inp.value.trim() !== '';
+      f.classList.toggle('invalid', !good); if (!good) ok = false;
+    });
+    var mk = $('[data-marks]', page);
+    if (mk) {
+      var fallos = [];
+      MARCAS.forEach(function(m){
+        var fila = $('tr[data-m="'+m.id+'"]'), falta = [];
+        var mv = leerMarca(m), fe = $('#'+m.id+'-fecha').value;
+        if (mv === '') falta.push('escribe tu marca: necesitamos una marca de referencia de cada prueba (mídete aunque no la hayas hecho nunca)');
+        else if (mv == null) falta.push('revisa los números de la marca (' + m.unidades + ', por ejemplo ' + m.ej + ')');
+        if (!$('#'+m.id+'-med').value) falta.push('elige cómo se midió');
+        if (!fe) falta.push('elige el mes en que te mediste');
+        fila.classList.toggle('bad', falta.length > 0);
+        if (falta.length) fallos.push('<b>' + m.n + ':</b> ' + falta.join('; ') + '.');
+      });
+      $('#marksErr').innerHTML = fallos.join('<br>');
+      mk.classList.toggle('invalid', fallos.length > 0); if (fallos.length) ok = false;
+    }
+    if (!ok) { var first = $('.invalid', page); if (first) first.scrollIntoView({behavior:'smooth', block:'center'}); }
+    return ok;
+  }
+
+  // Navegación
+  var paso = 1;
+  function ir(n){
+    paso = n;
+    $$('section.page').forEach(function(s){ s.hidden = +s.dataset.p !== n; });
+    $$('.step').forEach(function(s){ var k=+s.dataset.s; s.classList.toggle('on', k===n); s.classList.toggle('done', k<n); });
+    $('#prev').hidden = n === 1;
+    $('#next').textContent = n === 4 ? 'Enviar cuestionario' : 'Siguiente';
+    $('#mid').innerHTML = 'Paso '+n+' de 4. <span class="req">*</span> Obligatorio';
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+  $('#prev').addEventListener('click', function(){ ir(paso-1); });
+  $('#f').addEventListener('submit', function(e){
+    e.preventDefault();
+    if (!val($('section[data-p="'+paso+'"]'))) return;
+    if (paso < 4) return ir(paso+1);
+    enviar();
+  });
+  $('#f').addEventListener('input', function(e){ var f = e.target.closest('.invalid'); if (f) f.classList.remove('invalid'); });
+  $('#f').addEventListener('change', function(e){ var f = e.target.closest('.invalid'); if (f) f.classList.remove('invalid'); });
+
+  function datos(){
+    var radio = function(n){ var r=$('input[name='+n+']:checked'); return r ? r.value : ''; };
+    var checks = function(n){ return $$('input[name='+n+']:checked').map(function(c){return c.value}); };
+    var d = {
+      nombre: $('#nombre').value.trim(), email: $('#email').value.trim(), nacimiento: $('#nacimiento').value,
+      municipio: $('#municipio').value.trim(), sexo: radio('sexo'),
+      imc: imc(), // solo para la ficha del correo; altura y peso no salen del navegador
+      actividad: radio('actividad'), deporte: $('#deporte').value.trim(), atletismo: radio('atletismo'),
+      declaracion: $('#declaracion').checked, consentimientoLesiones: $('#consentimiento').checked,
+      lesiones: $('#consentimiento').checked ? checks('lesion') : [], recuperacion: $('#consentimiento').checked ? radio('recuperacion') : '',
+      crol: radio('crol'), metrosSeguidos: +$('#metros').value, deCabeza: radio('cabeza'),
+      franjas: checks('franja'), minutosSesion: +radio('tiempo'),
+      instalaciones: INST.reduce(function(o,x){ var r=radio('i-'+x[0]); o[x[0]] = r==='si' ? +$('#d-'+x[0]).value : 0; return o; }, {}),
+      piscinaMetros: radio('piscinaM'), material: checks('material'),
+      marcas: MARCAS.map(function(m){ return {prueba:m.n, nunca:false, marca:leerMarca(m), medicion:$('#'+m.id+'-med').value, fecha:$('#'+m.id+'-fecha').value}; }),
+      preocupa: radio('preocupa'), comentario: $('#comentario').value.trim(),
+      proteccionDatos: $('#leido').checked, veraces: $('#veraces').checked
+    };
+    return d;
+  }
+  function terminado(txt){
+    $('#f').hidden = true; $('#done').hidden = false; if (txt) $('#doneTxt').textContent = txt;
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+  var API = 'https://script.google.com/macros/s/AKfycbzLHjIWWOFcees8gpbKrwIVqvzaqKJmZZijuF4sYjWlkrPLwpHvSX1L1L61qVqk1UIT/exec';
+  function enviar(){
+    var d = datos(), b = $('#next');
+    if (!enAppsScript) return mostrarFicha(d);
+    b.disabled = true; b.textContent = 'Enviando…';
+    var fallo = function(err){ b.disabled = false; b.textContent = 'Enviar cuestionario'; $('#marksErr').textContent = 'No se ha podido enviar: ' + (err && err.message ? err.message : 'inténtalo de nuevo en unos minutos.'); $('[data-marks]').classList.add('invalid'); };
+    var hecho = function(){ terminado(d.demo ? 'Demostración: te acabamos de enviar a ' + d.email + ' los 9 correos que recibiría un alumno. Cada uno indica arriba cuándo lo recibiría de verdad. Si no los ves, revisa spam o promociones.' : null); };
+    // Web pública (GitHub Pages): envío directo al servidor de Google, sin abrir nada de Google en el navegador
+    if (!/googleusercontent\.com$/.test(location.hostname)) {
+      d.demo = /[?&]demo=1(&|$)/.test(location.search);
+      if (d.demo) b.textContent = 'Preparando tus correos…';
+      return fetch(API, { method: 'POST', body: JSON.stringify({ accion: 'procesarCuestionario', args: [d] }) })
+        .then(function(r){ return r.json(); })
+        .then(function(j){ if (j.ok) hecho(); else fallo(new Error(j.error)); })
+        .catch(function(){ fallo(new Error('No hay conexión con el servidor. Revisa tu conexión e inténtalo de nuevo.')); });
+    }
+    cuandoGoogleListo(function(err){
+      if (err) return fallo(err);
+      var mandar = function(){
+        if (d.demo) b.textContent = 'Preparando tus correos…';
+        google.script.run.withSuccessHandler(function(){ terminado(d.demo ? 'Demostración: te acabamos de enviar a ' + d.email + ' los 9 correos que recibiría un alumno. Cada uno indica arriba cuándo lo recibiría de verdad. Si no los ves, revisa spam o promociones.' : null); }).withFailureHandler(fallo).procesarCuestionario(d);
+      };
+      // Enlace de demostración: ...exec?demo=1
+      try { google.script.url.getLocation(function(loc){ d.demo = !!(loc && loc.parameter && loc.parameter.demo === '1'); mandar(); }); } catch (e) { mandar(); }
+    });
+  }
+
+  // Ficha inicial (en la vista de prueba se muestra aquí; en el real llega por correo)
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function mostrarFicha(d){
+    var f = Calculo.ficha(d), L = Calculo.lista;
+    var inst = [['pista','pista'],['foso','foso de arena'],['piscina','piscina' + (d.piscinaMetros ? ' de ' + d.piscinaMetros + ' m' : '')],['gimnasio','gimnasio']]
+      .filter(function(x){ return d.instalaciones[x[0]]; }).map(function(x){ return x[1] + ' (' + d.instalaciones[x[0]] + ' días/semana)'; });
+    var lesiones = (d.lesiones || []).filter(function(x){ return x !== 'Ninguna'; });
+    var kv = function(k, v){ return '<p class="kv"><span>' + k + ':</span> ' + v + '</p>'; };
+    var total = f.semanas || 1, cls = {'Base':'ph-base','Específica':'ph-esp','Afinamiento':'ph-afin'};
+    var html = '' +
+      '<p class="lede">Hola, ' + esc(d.nombre.split(' ')[0]) + '. Esta es la ficha que recibirías por correo al enviar el cuestionario. Con ella empieza tu plan.</p>' +
+      '<h2>Cuestionario inicial</h2><div class="cols">' +
+        '<div><h3>Datos básicos</h3>' + kv('Edad', f.edad != null ? f.edad + ' años' : '—') + kv('Baremo', d.sexo === 'Mujer' ? 'Mujeres' : 'Hombres') + kv('Municipio', esc(d.municipio)) +
+          kv('IMC', f.imc != null ? String(f.imc).replace('.', ',') + (f.imcDentro ? ', dentro del rango de las bases' : ', fuera del rango de las bases') + ' (calculado al momento, no se guarda)' : '—') + '</div>' +
+        '<div><h3>Disponibilidad y recursos</h3>' + kv('Días', f.disponibilidad || '—') + kv('Tiempo por sesión', d.minutosSesion + ' minutos') +
+          kv('Instalaciones', inst.length ? L(inst) : 'ninguna') + kv('Material', d.material.length ? L(d.material).toLowerCase() : 'ninguno') + '</div>' +
+        '<div><h3>Experiencia</h3>' + kv('Actividad actual', esc(d.actividad === 'No' ? 'ninguna' : (d.deporte ? d.deporte + ', ' : '') + d.actividad.toLowerCase())) +
+          kv('Atletismo', d.atletismo.toLowerCase()) + kv('Natación', 'crol ' + d.crol.toLowerCase() + ', ' + d.metrosSeguidos + ' m seguidos; de cabeza: ' + d.deCabeza.toLowerCase()) + '</div>' +
+        '<div><h3>Salud y consentimientos</h3>' + kv('Declaración responsable', 'aceptada') +
+          kv('Consentimiento lesiones', d.consentimientoLesiones ? 'dado. ' + (lesiones.length ? 'Pruebas afectadas: ' + L(lesiones) + '.' : 'Ninguna prueba afectada.') : 'no dado') + '</div>' +
+      '</div>' +
+      '<h2>Test de entrada</h2><div class="tablewrap"><table class="test"><thead><tr><th>Prueba</th><th class="r">Marca válida</th><th>Medición</th><th class="r">Frente a mínima</th><th class="r">Mínima</th><th>Estado</th></tr></thead><tbody>' +
+        f.pruebas.map(function(r){ return '<tr><td class="b">' + r.n + '</td><td class="r b">' + Calculo.formato(r.k, r.valida) + '</td><td>' + r.medicion + '</td><td class="r">' + r.frente +
+          '</td><td class="r">' + Calculo.formato(r.k, r.minima) + '</td><td><span class="pill ' + r.color + '">' + r.estado + '</span></td></tr>'; }).join('') +
+      '</tbody></table></div>' +
+      '<h2>Tu plan, a partir de estos datos</h2>' +
+      '<p class="note" style="margin-top:-4px">' + f.semanas + ' semanas hasta la fecha objetivo de la academia (' + f.fechaObjetivo + ')</p>' +
+      (f.test ? '<div class="testweek"><b>Semana de test inicial, ' + f.testTexto + '.</b> Alguna marca falta, es estimada o tiene más de un mes: la primera semana repites las pruebas con nuestro protocolo y el plan se ajusta a esos resultados.</div>' : '') +
+      '<div class="phases">' + f.fases.map(function(x){ return '<div class="' + cls[x.n] + '" style="flex:' + x.semanas + '"><b>' + x.n + '</b><small>Sem. ' + x.ini + '-' + x.fin + ', ' + x.meses + '</small></div>'; }).join('') + '</div>' +
+      '<div class="cols">' +
+        '<div><h3>Prioridades</h3><p class="kv">' + f.prioridades.map(function(p, i){ return (i + 1) + '. ' + p; }).join(', ') + '</p>' +
+          '<h3>Estructura semanal</h3><p class="kv">' + f.diasPlan.length + ' sesiones de ' + f.minutos + ' minutos: ' + L(f.diasPlan.map(function(x){ return x.toLowerCase(); })) + '</p></div>' +
+        '<div><h3>Objetivos para el primer mes</h3>' + f.objetivosMes.map(function(o){ return '<p class="kv">' + o.n + ': ' + o.texto + '</p>'; }).join('') + '</div>' +
+      '</div>' +
+      (f.avisos.length ? '<div class="avisos"><b>A tener en cuenta</b>' + f.avisos.map(function(a){ return '<p>' + a + '</p>'; }).join('') + '</div>' : '') +
+      '<h2>Dónde entrenar cerca de ti</h2><p class="kv">Busca en el mapa las instalaciones más cercanas a ' + esc(d.municipio) + ':</p><div class="mapas">' +
+        [['pista de atletismo','Pistas de atletismo'],['piscina','Piscinas'],['gimnasio','Gimnasios']].map(function(x){ return '<a class="btn alt" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(x[0] + ' ' + d.municipio) + '">📍 ' + x[1] + '</a>'; }).join('') + '</div>' +
+      '<div class="again"><button type="button" class="btn prev" id="again">Volver al cuestionario</button></div>';
+    $('#ficha').innerHTML = html;
+    $('#f').hidden = true; $('#ficha').hidden = false; $('#demo').hidden = true;
+    $('header.top h1').textContent = 'Ficha inicial';
+    $('header.top p').textContent = d.nombre;
+    $('#again').addEventListener('click', function(){
+      $('#ficha').hidden = true; $('#f').hidden = false; $('#demo').hidden = false;
+      $('header.top h1').textContent = 'Cuestionario inicial de pruebas físicas';
+      $('header.top p').textContent = 'Agentes del Servicio de Vigilancia Aduanera';
+      ir(4);
+    });
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  // Ejemplo para la vista de prueba
+  $('#fill').addEventListener('click', function(){
+    var set = function(id,v){ var el=$('#'+id); el.value=v; el.dispatchEvent(new Event('input',{bubbles:true})); };
+    var chk = function(id){ var el=$('#'+id); el.checked=true; el.dispatchEvent(new Event('change',{bubbles:true})); };
+    set('nombre','Marco Aurelio'); set('email','marco.aurelio@ejemplo.com'); set('nacimiento','1999-04-12'); set('municipio','La Laguna');
+    chk('sexo-h'); set('altura','178'); set('peso','78'); chk('act-1'); set('deporte','Fútbol aficionado'); chk('atl-0');
+    chk('declaracion'); chk('consentimiento'); chk('les-0'); chk('crol-2'); set('metros','400'); chk('cab-2');
+    ['av-0-2','av-1-2','av-3-2','av-5-0'].forEach(chk); chk('t60');
+    chk('i-pista-si'); set('d-pista','2'); chk('i-foso-si'); set('d-foso','2'); chk('i-piscina-si'); set('d-piscina','1'); chk('i-gimnasio-si'); set('d-gimnasio','2');
+    chk('p25'); chk('m1'); chk('m3');
+    [['m50',{s:'8',c:'20'},'Cronometrada por otra persona'],['m800',{min:'3',s:'40'},'Con reloj o app'],['msalto',{cm:'315'},'Con cinta métrica'],['mnado',{min:'0',s:'52',d:'0'},'Cronometrada por otra persona']].forEach(function(x){
+      Object.keys(x[1]).forEach(function(k){ $('#'+x[0]+'-'+k).value = x[1][k]; });
+      $('#'+x[0]+'-med').value = x[2]; $('#'+x[0]+'-fecha').selectedIndex = 1;
+    });
+    chk('pr2'); set('comentario','Juego al fútbol los martes y jueves.'); chk('leido'); chk('veraces');
+    $$('.invalid').forEach(function(f){ f.classList.remove('invalid'); });
+  });
+})();
+</script>
+</body>
+</html>
