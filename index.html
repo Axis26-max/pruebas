@@ -249,11 +249,11 @@
           <summary>Cómo medirte (2 días)</summary>
           <p><b>Día A, en pista.</b> Calienta 15 minutos (trote suave, skipping y 3 progresivos).</p>
           <ul>
-            <li><b>50 m lisos:</b> 2 intentos con salida de pie y 5 minutos de descanso. Que te cronometre otra persona y apunta el mejor. <a href="https://youtu.be/Iqq7beboJ_Y" target="_blank" rel="noopener">Ver vídeo</a></li>
-            <li><b>Salto de longitud:</b> 2 intentos. Mide con cinta métrica desde la línea de batida hasta la huella más cercana. <a href="https://youtu.be/O-DcCW38xKw" target="_blank" rel="noopener">Ver vídeo</a></li>
-            <li><b>800 m:</b> descansa 15 minutos y corre 1 vez a tope. Apunta el tiempo.</li>
+            <li><b>50 m lisos:</b> 2 intentos con salida de pie y 5 minutos de descanso. Que te cronometre otra persona y apunta el mejor. <a href="https://youtu.be/bnyMf3b_XE4" target="_blank" rel="noopener">Ver vídeo</a></li>
+            <li><b>Salto de longitud:</b> 2 intentos. Mide con cinta métrica desde la línea de batida hasta la huella más cercana. <a href="https://youtu.be/mdRAvTK3JVI" target="_blank" rel="noopener">Ver vídeo</a></li>
+            <li><b>800 m:</b> descansa 15 minutos y corre 1 vez a tope. Apunta el tiempo. <a href="https://youtu.be/OFg1awoGugQ" target="_blank" rel="noopener">Ver vídeo</a></li>
           </ul>
-          <p><b>Día B, en piscina.</b> Calienta 300 m suaves y haz <b>50 m libres</b> con zambullida, un solo intento, cronometrado por otra persona. <a href="https://youtu.be/LYT6iwyed_c" target="_blank" rel="noopener">Ver vídeo</a></p>
+          <p><b>Día B, en piscina.</b> Calienta 300 m suaves y haz <b>50 m libres</b> con zambullida, un solo intento, cronometrado por otra persona. <a href="https://youtu.be/nx99UNZVnDw" target="_blank" rel="noopener">Ver vídeo</a></p>
         </details>
       </div>
       <div class="field" data-marks>
@@ -317,11 +317,21 @@
  *    rojo (resto o nunca realizada).
  *  - 50 m lisos cronometrado a mano: +0,2 s.
  *  - Sin marca, marca estimada o de hace más de un mes → semana de test inicial.
- *  - Fases: base → específica → afinamiento hasta la fecha objetivo común de la academia.
+ *  - Fases (Bompa, Periodización 2019): base (25-33 % de la preparación, más en principiantes) → específica →
+ *    afinamiento (los últimos 8-14 días antes del examen).
+ *  - Mientras no se publique la fecha del examen (fechaExamen vacía): plan provisional de 26 semanas desde la
+ *    inscripción de cada alumno, solo base y específica; la específica se alarga mientras no haya fecha.
+ *  - Con fecha: el último test completo, en la última semana que termina al menos 14 días antes del examen.
+ *  - Convocatoria 2027: pruebas previstas del martes 1 al viernes 4 de junio. El plan empieza siempre en lunes,
+ *    desde el lunes siguiente a la incorporación de cada alumno, y termina el viernes 4 de junio.
+ *    El afinamiento se calcula con el primer día de pruebas (1 de junio), por prudencia.
+ *  - Si quedan menos de 7 semanas, no hay semana de test inicial: se parte de las marcas del cuestionario.
  */
 var Calculo = (function () {
   var CONFIG = {
-    fechaObjetivo: '2027-03-15', // fecha objetivo común fijada por la academia
+    fechaExamen: '2027-06-01',   // primer día de pruebas 'aaaa-mm-dd'; vacío = plan provisional (en Apps Script se lee de la hoja Ajustes)
+    fechaFin: '2027-06-04',      // último día de pruebas: el plan termina ese día (en Apps Script, hoja Ajustes)
+    semanasProvisional: 26,      // 6 meses desde la inscripción mientras no haya fecha
     imcMin: 18.5, imcMax: 29.9,  // rango de IMC de las bases de la convocatoria · CONFIRMAR y actualizar si cambian
     margenCerca: 0.05,
     mejoraObjetivo: 0.10,
@@ -361,8 +371,9 @@ var Calculo = (function () {
   }
 
   function lista(xs) { return xs.length < 2 ? xs.join('') : xs.slice(0, -1).join(', ') + ' y ' + xs[xs.length - 1]; }
-  function lunesSiguiente(d) { var x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); var w = (x.getDay() + 6) % 7; return new Date(x.getTime() + (7 - w) * DIA_MS); }
-  function suma(d, dias) { return new Date(d.getTime() + dias * DIA_MS); }
+  // Fechas por calendario (no por milisegundos): así el cambio de hora de marzo y octubre no mueve los días.
+  function lunesSiguiente(d) { var w = (d.getDay() + 6) % 7; return new Date(d.getFullYear(), d.getMonth(), d.getDate() + 7 - w); }
+  function suma(d, dias) { return new Date(d.getFullYear(), d.getMonth(), d.getDate() + dias); }
   function fechaLarga(d) { return d.getDate() + ' de ' + MESES[d.getMonth()] + ' de ' + d.getFullYear(); }
   function rangoFechas(a, b) {
     if (a.getMonth() === b.getMonth()) return 'del ' + a.getDate() + ' al ' + fechaLarga(b);
@@ -426,10 +437,16 @@ var Calculo = (function () {
     return out;
   }
 
-  function fases(semanas) {
-    var base = semanas >= 20 ? 4 : semanas >= 12 ? 3 : semanas >= 6 ? 2 : 0;
-    var afin = semanas >= 16 ? 4 : semanas >= 10 ? 3 : Math.min(2, semanas);
-    var esp = Math.max(0, semanas - base - afin);
+  /**
+   * Reparto de fases (Bompa, cap. 8): la base es el 25 % de la preparación (33 % en principiantes), con un mínimo
+   * de 2 semanas; se calcula sobre 24 semanas como máximo, para que no se alargue si la fecha llega tarde.
+   * afin: semanas de afinamiento (0 mientras no haya fecha).
+   */
+  function fases(semanas, afin, principiante) {
+    var prep = Math.max(0, semanas - afin), ref = Math.min(prep, 24);
+    var base = semanas < 6 ? 0 : Math.max(2, Math.round(ref * (principiante ? 0.33 : 0.25)));
+    base = Math.min(base, Math.max(0, prep - 2));
+    var esp = prep - base;
     return [
       { n: 'Base', ini: 1, fin: base },
       { n: 'Específica', ini: base + 1, fin: base + esp },
@@ -449,11 +466,28 @@ var Calculo = (function () {
       var e = r.entrada; return !e || e.nunca || e.medicion === 'Estimada' || mesesDesde(e.fecha, hoy) > 1;
     });
     var inicio = lunesSiguiente(hoy);
+    if (needTest && CONFIG.fechaExamen && (new Date(CONFIG.fechaExamen + 'T00:00:00') - inicio) / DIA_MS < 7 * 7) needTest = false; // poco margen: sin semana de test
+    // El inicio del plan queda fijado al enviar el primer plan (d.planIni): las marcas nuevas no lo mueven.
+    if (d.planIni) { needTest = !!d.conTest; var fijo = new Date(d.planIni + 'T00:00:00'); inicio = needTest ? suma(fijo, -7) : fijo; }
     var test = needTest ? { ini: inicio, fin: suma(inicio, 6) } : null;
     var planIni = needTest ? suma(inicio, 7) : inicio;
-    var objetivo = new Date(CONFIG.fechaObjetivo + 'T00:00:00');
-    var semanas = Math.max(0, Math.floor((objetivo - planIni) / (7 * DIA_MS)));
-    var fs = fases(semanas).map(function (f) {
+    var provisional = !CONFIG.fechaExamen, objetivo, fin, semanas, afin = 0, ultimoTest = Infinity;
+    if (provisional) {
+      // Sin fecha publicada: 26 semanas; si el plan sigue sin fecha, se va alargando bloque a bloque.
+      semanas = Math.max(CONFIG.semanasProvisional, (semanaDesde || 0) + 8);
+      objetivo = suma(planIni, semanas * 7);
+    } else {
+      objetivo = new Date(CONFIG.fechaExamen + 'T00:00:00');
+      fin = CONFIG.fechaFin ? new Date(CONFIG.fechaFin + 'T00:00:00') : objetivo;
+      if (fin < objetivo) fin = objetivo;
+      var dias = Math.round((objetivo - planIni) / DIA_MS);
+      semanas = Math.max(0, Math.ceil(dias / 7));                               // incluye la semana del examen si no es lunes
+      var afinIni = Math.max(1, Math.ceil((dias - 14) / 7) + 1);                // primera semana que empieza a 14 días o menos
+      afin = Math.max(0, semanas - afinIni + 1);
+      ultimoTest = Math.floor((dias - 13) / 7);                                 // última semana que termina 14 días antes o más
+    }
+    var principiante = d.actividad === 'No';
+    var fs = fases(semanas, afin, principiante).map(function (f) {
       var a = suma(planIni, (f.ini - 1) * 7), b = suma(planIni, f.fin * 7 - 1);
       f.meses = rangoMeses(a, b); f.semanas = f.fin - f.ini + 1; return f;
     });
@@ -491,6 +525,11 @@ var Calculo = (function () {
       imc: d.imc, imcDentro: d.imc != null && d.imc >= CONFIG.imcMin && d.imc <= CONFIG.imcMax,
       pruebas: pruebas, test: test, testTexto: test ? rangoFechas(test.ini, test.fin) : '',
       semanas: semanas, fases: fs, fechaObjetivo: fechaLarga(objetivo), planIni: planIni,
+      provisional: provisional, objetivo: objetivo, finExamen: fin || objetivo, ultimoTest: ultimoTest,
+      textoExamen: provisional ? '' : (+fin === +objetivo ? 'el ' + fechaLarga(objetivo) : rangoFechas(objetivo, fin)),
+      textoPlazo: provisional
+        ? 'Plan provisional de ' + semanas + ' semanas: la fecha del examen aún no se ha publicado. Cuando salga, ajustamos el final del plan para que llegues en tu mejor momento.'
+        : semanas + (semanas === 1 ? ' semana' : ' semanas') + ', ' + (planIni.getFullYear() === fin.getFullYear() ? rangoFechas(planIni, fin) : 'del ' + fechaLarga(planIni) + ' al ' + fechaLarga(fin)) + '. Pruebas físicas previstas ' + (+fin === +objetivo ? 'el ' + fechaLarga(objetivo) : rangoFechas(objetivo, fin)) + '.',
       prioridades: orden.map(function (r) { return r.n; }),
       disponibilidad: disp.texto, diasPlan: diasPlan, minutos: d.minutosSesion,
       objetivosMes: objetivosMes, avisos: avisos,
@@ -730,7 +769,7 @@ if (typeof module !== 'undefined') module.exports = Calculo;
           '</td><td class="r">' + Calculo.formato(r.k, r.minima) + '</td><td><span class="pill ' + r.color + '">' + r.estado + '</span></td></tr>'; }).join('') +
       '</tbody></table></div>' +
       '<h2>Tu plan, a partir de estos datos</h2>' +
-      '<p class="note" style="margin-top:-4px">' + f.semanas + ' semanas hasta la fecha objetivo de la academia (' + f.fechaObjetivo + ')</p>' +
+      '<p class="note" style="margin-top:-4px">' + f.textoPlazo + '</p>' +
       (f.test ? '<div class="testweek"><b>Semana de test inicial, ' + f.testTexto + '.</b> Alguna marca falta, es estimada o tiene más de un mes: la primera semana repites las pruebas con nuestro protocolo y el plan se ajusta a esos resultados.</div>' : '') +
       '<div class="phases">' + f.fases.map(function(x){ return '<div class="' + cls[x.n] + '" style="flex:' + x.semanas + '"><b>' + x.n + '</b><small>Sem. ' + x.ini + '-' + x.fin + ', ' + x.meses + '</small></div>'; }).join('') + '</div>' +
       '<div class="cols">' +
